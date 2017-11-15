@@ -1,3 +1,11 @@
+"""
+----------------------------------------------
+TP IA
+Renaud Sylvain, Castella Killian
+15.11.2017
+----------------------------------------------
+"""
+
 import pygame
 from pygame.locals import KEYDOWN, QUIT, MOUSEBUTTONDOWN, K_RETURN
 import sys
