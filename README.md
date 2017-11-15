@@ -1,17 +1,17 @@
 # AlgoGen-IA
 TP Projet algorithmes génétiques du cours d'IA @HE-Arc
 
-## WP1 : Aquisition de donéées
+## WP1 : Aquisition de données
 
-## WP2 : Algo génétique: Générailtés
+## WP2 : Algo génétique: Généralités
 
 - Conditions d'arrêts
 - Fitness
 - Séléction
 
-## WP3 : Algo génétique: opérations génétique
+## WP3 : Algo génétique: opérations génétiques
 
-- Croisement
-- Mutation
+- Croisements
+- Mutations
 
-## WP4 : Validation - Test - Livraison
+## WP4 : Validation - Tests - Livraison
