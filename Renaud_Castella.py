@@ -10,6 +10,27 @@ import pygame
 import sys
 
 
+class Probleme():
+    villes = []
+
+    def __init__(self, villes):
+        if isinstance(villes, list):
+            self.villes = villes
+
+    def __len__(self):
+        return len(self.villes)
+
+    def __iter__(self):
+        return self.villes.__iter__()
+
+    def append(self, ville):
+        self.villes.append(ville)
+
+
+class Solution():
+    pass
+
+
 class Ville():
     def __init__(self, x, y, name=""):
         self.x = x
@@ -35,6 +56,9 @@ def ga_solve(filename=None, gui=True, maxtime=0):
                 name, x, y = line.split()
                 villes.append(Ville(int(x), int(y), name))
             print(len(villes), villes)
+
+    if gui:
+        pass
 
 
 ga_solve("data/pb010.txt", False)
