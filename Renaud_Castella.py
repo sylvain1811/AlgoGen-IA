@@ -9,6 +9,7 @@ Renaud Sylvain, Castella Killian
 import pygame
 from pygame.locals import KEYDOWN, QUIT, MOUSEBUTTONDOWN, K_RETURN
 import sys
+import math
 from random import shuffle
 
 
@@ -74,6 +75,7 @@ class Ville():
 
 
 class Parcours():
+    distance = None
     villes = []
 
     def __init__(self, villes):
@@ -87,11 +89,21 @@ class Parcours():
     def __iter__(self):
         return self.villes.__iter__()
 
+    def fitness(self):
+        self.distance = 0
+        old_city = None
+        for v in self.villes:
+            self.distance += Parcours.dist(old_city, v)
+            old_city = v
+
+    @staticmethod
+    def dist(a, b):
+        if a is not None:
+            return math.sqrt(math.pow(a.x - b.x, 2) + math.pow(a.y - b.y, 2))
+        return 0
+
     def append(self, ville):
         self.villes.append(ville)
-
-    def fitness(self):
-        pass
 
     def __str__(self):
         str = "{"
@@ -138,8 +150,8 @@ def ga_solve(filename=None, gui=True, maxtime=0):
         population.append(Parcours(villes).shuffle())
 
     while True:
-
         selection(population)
+        # delete n last elem of list L  :  del L[-n:]
         # croisement()
         # mutation()
 
