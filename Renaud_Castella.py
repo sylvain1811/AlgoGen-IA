@@ -10,7 +10,7 @@ import pygame
 from pygame.locals import KEYDOWN, QUIT, MOUSEBUTTONDOWN, K_RETURN
 import sys
 import math
-from random import shuffle
+from random import shuffle,randint
 
 
 def initPygame():
@@ -124,7 +124,12 @@ def selection(population):
 
 
 def croisement(population):
-    pass
+    population2=[]
+    # pseudo-code croisement ! :
+    #while len(population2) < len(population)*2:
+       # elem1,elem2 = cross(population[randint(0,len(population)-1)])
+       # if newELem not in population2:
+       #     population2.append(newELem)
 
 
 def mutation(population):
