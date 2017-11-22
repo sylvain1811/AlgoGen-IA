@@ -119,7 +119,16 @@ def selection(population):
     for individu in population:
         individu.fitness()
     population.sort(key=lambda individu: individu.distance)
-    del population[-len(population) / 2:]
+    # delete n last elem of list
+    del population[-int(len(population) / 2):]
+
+
+def croisement(population):
+    pass
+
+
+def mutation(population):
+    pass
 
 
 def ga_solve(filename=None, gui=True, maxtime=0):
@@ -151,11 +160,10 @@ def ga_solve(filename=None, gui=True, maxtime=0):
 
     while True:
         selection(population)
-        # delete n last elem of list L  :  del L[-n:]
-        # croisement()
-        # mutation()
+        croisement(population)
+        mutation(population)
 
-        # Tests
+        # Conditions d'arrêt
         if time.time() - start_time > maxtime:
             break
 
