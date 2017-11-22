@@ -84,14 +84,14 @@ class Parcours():
         shuffle(self.villes)
         return self
 
-    def __len__(self):
-        return len(self.villes)
-
     def __iter__(self):
         return self.villes.__iter__()
 
     def append(self, ville):
         self.villes.append(ville)
+
+    def fitness(self):
+        pass
 
     def __str__(self):
         str = "{"
@@ -101,6 +101,13 @@ class Parcours():
 
     def __repr__(self):
         return self.__str__()
+
+
+def selection(population):
+    for individu in population:
+        individu.fitness()
+    population.sort(key=lambda individu: individu.distance)
+    del population[-len(population) / 2:]
 
 
 def ga_solve(filename=None, gui=True, maxtime=0):
@@ -124,15 +131,15 @@ def ga_solve(filename=None, gui=True, maxtime=0):
 
     start_time = time.time()
 
-    parcours_list = []
-    for i in range(10):
-        parcours_list.append(Parcours(villes).shuffle())
+    population = []
 
-    print(parcours_list)
+    # Ajoute 10 individus
+    for i in range(10):
+        population.append(Parcours(villes).shuffle())
 
     while True:
 
-        # selection()
+        selection(population)
         # croisement()
         # mutation()
 
