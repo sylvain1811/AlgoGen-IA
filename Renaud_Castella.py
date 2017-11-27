@@ -7,9 +7,11 @@ Renaud Sylvain, Castella Killian
 """
 
 import pygame
+from builtins import print
 from pygame.locals import KEYDOWN, QUIT, MOUSEBUTTONDOWN, K_RETURN
 import sys
 import math
+from copy import copy
 from random import shuffle, randint
 
 
@@ -89,6 +91,15 @@ class Parcours():
     def __iter__(self):
         return self.villes.__iter__()
 
+    def __getitem__(self, item):
+        return self.villes.__getitem__(item)
+
+    def __setitem__(self, key, value):
+        return self.villes.__setitem__(key, value)
+
+    def __delitem__(self, key):
+        del self.villes[key]
+
     def fitness(self):
         self.distance = 0
         old_city = None
@@ -123,13 +134,56 @@ def selection(population):
     del population[-int(len(population) / 2):]
 
 
-def croisement(population):
-    population2 = []
-    # pseudo-code croisement ! :
-    # while len(population2) < len(population)*2:
-    # elem1,elem2 = cross(population[randint(0,len(population)-1)])
-    # if newELem not in population2:
-    #     population2.append(newELem)
+def crossover(ga, gb):
+    """Algorithm: Greedy Subtour Crossover"""
+    ga = ga.villes
+    gb = gb.villes
+
+    n = len(ga)
+    fa = True
+    fb = True
+    t = ga[randint(0, n - 1)]
+    x = ga.index(t)
+    y = gb.index(t)
+
+    g = [t]
+
+    while True:
+        x = (x - 1) % n
+        y = (y + 1) % n
+        if fa == True:
+            if ga[x] not in g:
+                g.insert(0, ga[x])
+            else:
+                fa = False
+        if fb == True:
+            if gb[y] not in g:
+                g.append(gb[y])
+            else:
+                fb = False
+        if fa == False or fb == False:
+            break
+
+    if len(g) < len(ga):
+        # print("ERROR", len(g), len(ga))
+        for v in ga:
+            if v not in g:
+                g.append(v)
+    return g
+
+
+def croisement(pop):
+    n = len(pop)
+    while len(pop) < 2 * n:
+        x = pop[randint(0, len(pop) - 1)]
+        y = pop[randint(0, len(pop) - 1)]
+        while y == x:
+            y = pop[randint(0, len(pop) - 1)]
+        child = crossover(copy(x), copy(y))
+        # print(f"x : {len(x.villes)} {x}")
+        # print(f"y : {len(y.villes)} {y}")
+        # print(f"c : {len(child)} {child}")
+        pop.append(Parcours(child))
 
 
 def mutation(population):
@@ -172,6 +226,9 @@ def ga_solve(filename=None, gui=True, maxtime=0):
         if time.time() - start_time > maxtime:
             break
 
+    selection(population)
+    print(population[0].distance)
 
-ga_solve("data/pb010.txt", False, 1)
+
+ga_solve("data/pb010.txt", False, 5)
 # ga_solve(maxtime=1)
