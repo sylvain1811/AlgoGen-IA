@@ -133,6 +133,23 @@ def selection(population):
     # delete n last elem of list
     del population[-int(len(population) / 2):]
 
+def mutate1(parcours):
+    """exchange 2 contiguous elements"""
+    ind = randint(0,len(parcours.villes)-1)
+    swap=parcours[ind]
+    parcours[ind] = parcours[ind-1]
+    parcours[ind-1]=swap
+
+def mutate2(parcours):
+    """exchange 2 random elements"""
+    ind = randint(0,len(parcours.villes)-1)
+    ind2=ind
+    while(ind2 is ind):
+        ind2=randint(0,len(parcours.villes)-1)
+    swap=parcours[ind]
+    parcours[ind] = parcours[ind2]
+    parcours[ind2]=swap
+
 
 def crossover(ga, gb):
     """Algorithm: Greedy Subtour Crossover"""
@@ -187,7 +204,14 @@ def croisement(pop):
 
 
 def mutation(population):
-    pass
+    #test :  on effectue la mutation sur 1 élément sur deux
+    count=0
+    for p in population:
+        if count%2==0:
+            mutate1(p)
+        else:
+            mutate2(p)
+        count += 1
 
 
 def ga_solve(filename=None, gui=True, maxtime=0):
@@ -225,7 +249,7 @@ def ga_solve(filename=None, gui=True, maxtime=0):
         # Conditions d'arrêt
         if time.time() - start_time > maxtime:
             break
-
+        break
     selection(population)
     print(population[0].distance)
 
