@@ -200,11 +200,15 @@ def mutate1(parcours):
     parcours[ind - 1] = swap
     parcours.fitness()
     if parcours.distance > old_dist:
-        parcours.villes = backup
+        return backup
+    else:
+        return parcours.villes
 
 
 def mutate2(parcours):
     """exchange 2 random elements"""
+    backup = list(parcours.villes)
+    old_dist = parcours.distance
     ind = randint(0, len(parcours.villes) - 1)
     ind2 = ind
     while (ind2 is ind):
@@ -212,16 +216,22 @@ def mutate2(parcours):
     swap = parcours[ind]
     parcours[ind] = parcours[ind2]
     parcours[ind2] = swap
+    parcours.fitness()
+    if parcours.distance > old_dist:
+        return backup
+    else:
+        return parcours.villes
 
 
 def mutation(population):
     # test :  on effectue la mutation sur 1 élément sur deux
+    from time import sleep
     count = 0
     for p in population:
-        if count % 10 == 0:
-            mutate1(p)
-        # elif count % 10 == 1:
-        #     mutate2(p)
+        if count % 2 == 0:
+            p.villes = mutate1(p)
+        else:
+            p.villes = mutate2(p)
         count += 1
 
 
@@ -274,11 +284,10 @@ def ga_solve(filename=None, gui=True, maxtime=0):
         if time.time() - start_time > maxtime:
             break
 
-        # Conditions d'arrêt sur la stagnation (100x la même solution
+        # Conditions d'arrêt sur la stagnation (100x la même solution)
         if population[0] == best:
             n += 1
-            if n > 1000:
-                print(nbIter, n)
+            if n > 100:
                 break
         else:
             # dessin de la nouvelle meilleure solution
@@ -300,5 +309,5 @@ def ga_solve(filename=None, gui=True, maxtime=0):
             break
 
 
-ga_solve("data/pb020.txt", True, 10)
+ga_solve("data/pb020.txt", True, 900000)
 # ga_solve(maxtime=1)
