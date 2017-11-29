@@ -333,4 +333,4 @@ def ga_solve(filename=None, gui=True, maxtime=0):
 
 
 ga_solve("data/pb100.txt", True, 900000)
-# ga_solve(maxtime=1)
+#ga_solve(maxtime=1)
