@@ -11,12 +11,12 @@ from builtins import print
 from pygame.locals import KEYDOWN, QUIT, MOUSEBUTTONDOWN, K_RETURN
 import sys
 import math
-from copy import copy
 from random import shuffle, randint
 
 
 def initPygame():
     global city_color
+    global line_color
     global city_radius
     global font_color
     global window
@@ -25,10 +25,10 @@ def initPygame():
     screen_x = 500
     screen_y = 500
     city_color = [10, 10, 200]  # blue
+    line_color = [200, 10, 10]  # red
     city_radius = 3
     font_color = [255, 255, 255]  # white
     pygame.init()
-    pygame.display.set_caption('Add cities')
     window = pygame.display.set_mode((screen_x, screen_y))
     screen = pygame.display.get_surface()
     font = pygame.font.Font(None, 30)
@@ -100,6 +100,12 @@ class Parcours():
     def __delitem__(self, key):
         del self.villes[key]
 
+    def getPoints(self):
+        list = []
+        for v in self.villes:
+            list.append((v.x, v.y))
+        return list
+
     def fitness(self):
         self.distance = 0
         old_city = None
@@ -165,7 +171,6 @@ def crossover(ga, gb):
             break
 
     if len(g) < len(ga):
-        # print("ERROR", len(g), len(ga))
         for v in ga:
             if v not in g:
                 g.append(v)
@@ -179,10 +184,7 @@ def croisement(pop):
         y = pop[randint(0, len(pop) - 1)]
         while y == x:
             y = pop[randint(0, len(pop) - 1)]
-        child = crossover(copy(x), copy(y))
-        # print(f"x : {len(x.villes)} {x}")
-        # print(f"y : {len(y.villes)} {y}")
-        # print(f"c : {len(child)} {child}")
+        child = crossover(x, y)
         pop.append(Parcours(child))
 
 
@@ -194,8 +196,9 @@ def ga_solve(filename=None, gui=True, maxtime=0):
     import time
 
     villes = []
-    if filename is None:
+    if gui:
         initPygame()
+    if filename is None:
         villes = getCitiesListFromGui()
         print(len(villes), villes)
     else:
@@ -217,18 +220,44 @@ def ga_solve(filename=None, gui=True, maxtime=0):
     for i in range(10):
         population.append(Parcours(villes).shuffle())
 
+    best = population[0]
+    n = 0
+    nbIter = 0
     while True:
-        selection(population)
+        nbIter += 1
         croisement(population)
         mutation(population)
+        selection(population)
 
-        # Conditions d'arrêt
+        # Conditions d'arrêt sur le temps
         if time.time() - start_time > maxtime:
             break
 
-    selection(population)
+        # Conditions d'arrêt sur la stagnation (100x la même solution
+        if population[0] == best:
+            n += 1
+            if n > 100:
+                print(nbIter, n)
+                break
+        else:
+            # dessin de la nouvelle meilleure solution
+            if gui:
+                screen.fill(0)
+                pygame.draw.lines(screen, line_color, True, population[0].getPoints())
+                print(population[0].getPoints())
+                pygame.display.set_caption('Meilleur chemin trouvé actuellement...')
+                pygame.display.flip()
+            best = population[0]
+            n = 0
+
+    pygame.display.set_caption('Meilleur chemin trouvé !')
     print(population[0].distance)
 
+    while True:
+        event = pygame.event.wait()
+        if event.type == KEYDOWN:
+            break
 
-ga_solve("data/pb010.txt", False, 5)
+
+ga_solve("data/pb050.txt", True, 5)
 # ga_solve(maxtime=1)
