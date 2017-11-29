@@ -17,7 +17,7 @@ Idée : stockage des distance entre deux points pour calculer qu'une seule fois.
 ### Conditions d'arrêts
 
 - Temps : currentTime - start time
-- Bouclage : si la distance (fitness) ne s'améliore pas après x itérations, on arrête.
+- Bouclage : si la distance (fitness) du meilleur parcours ne s'améliore pas après x itérations, on arrête.
 
 ### Séléction
 
