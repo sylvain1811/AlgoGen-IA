@@ -11,8 +11,6 @@ from builtins import print
 from pygame.locals import KEYDOWN, QUIT, MOUSEBUTTONDOWN, K_RETURN
 import sys
 import math
-from time import sleep
-from copy import deepcopy
 from random import shuffle, randint
 
 
@@ -114,7 +112,7 @@ class Parcours():
         for v in self.villes:
             self.distance += Parcours.dist(old_city, v)
             old_city = v
-        self.distance += Parcours.dist(old_city,self.villes[0])
+        self.distance += Parcours.dist(old_city, self.villes[0])
 
     @staticmethod
     def dist(a, b):
@@ -232,28 +230,30 @@ def mutation(population):
     for p in population:
         if count % 10 == 3:
             p.villes = mutate1(p)
-        elif count %10 == 4:
+        elif count % 10 == 4:
             p.villes = mutate2(p)
         count += 1
+
 
 def twotOpt(parcours):
     parcours.fitness()
     bestDist = parcours.distance
-    for i in range(1,len(parcours.villes)-1):
-        for k in range(i+1,len(parcours.villes)):
-            new_parcours =  Parcours(twoOptSwap(parcours.villes,i,k))
+    for i in range(1, len(parcours.villes) - 1):
+        for k in range(i + 1, len(parcours.villes)):
+            new_parcours = Parcours(twoOptSwap(parcours.villes, i, k))
             new_parcours.fitness()
             if new_parcours.distance < parcours.distance:
-                return  new_parcours
+                return new_parcours
     return None
 
 
-def twoOptSwap(route,i,k):
+def twoOptSwap(route, i, k):
     new_route = []
     new_route.extend(route[:i])
     new_route.extend(reversed(route[i:k + 1]))
     new_route.extend(route[k + 1:])
     return new_route
+
 
 def ga_solve(filename=None, gui=True, maxtime=0):
     import time
@@ -282,14 +282,14 @@ def ga_solve(filename=None, gui=True, maxtime=0):
     # Ajoute 10 individus
     for i in range(10):
         population.append(Parcours(villes).shuffle())
-    nbIter=0
+    nbIter = 0
     for p in population:
         p.fitness()
     population.sort(key=lambda individu: individu.distance)
     best = population[0]
     oldbest = population[1]
     while True:
-        nbIter+=1
+        nbIter += 1
 
         # Conditions d'arrêt sur la stagnation (100x la même solution)
         if population[0] == best:
@@ -298,14 +298,14 @@ def ga_solve(filename=None, gui=True, maxtime=0):
                 if optResult is None:
                     break
                 else:
-                    population[len(population)-1] = optResult
+                    population[len(population) - 1] = optResult
                 if gui:
                     # dessin de la nouvelle meilleure solution
                     screen.fill(0)
                     pygame.draw.lines(screen, line_color, True, population[0].getPoints())
                     pygame.display.set_caption('Meilleur chemin trouvé actuellement...')
                     pygame.display.flip()
-        oldbest=best
+        oldbest = best
 
         croisement(population)
         for individu in population:
@@ -333,4 +333,4 @@ def ga_solve(filename=None, gui=True, maxtime=0):
 
 
 ga_solve("data/pb100.txt", True, 900000)
-#ga_solve(maxtime=1)
+# ga_solve(maxtime=1)
