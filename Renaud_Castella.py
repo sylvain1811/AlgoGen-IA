@@ -228,16 +228,15 @@ def mutation(population):
     from time import sleep
     count = 0
     for p in population:
-        if count % 10 == 3:
+        if randint(0,20) == 0:
             p.villes = mutate1(p)
-        elif count % 10 == 4:
+        elif randint(0,20) == 0:
             p.villes = mutate2(p)
         count += 1
 
 
 def twotOpt(parcours):
     parcours.fitness()
-    bestDist = parcours.distance
     for i in range(1, len(parcours.villes) - 1):
         for k in range(i + 1, len(parcours.villes)):
             new_parcours = Parcours(twoOptSwap(parcours.villes, i, k))
@@ -263,14 +262,12 @@ def ga_solve(filename=None, gui=True, maxtime=0):
         initPygame()
     if filename is None:
         villes = getCitiesListFromGui()
-        print(len(villes), villes)
     else:
         # lire le fichier
         with open(filename) as file:
             for line in file:
                 name, x, y = line.split()
                 villes.append(Ville(int(x), int(y), name))
-            print(len(villes), villes)
 
     if gui:
         pass
@@ -280,7 +277,7 @@ def ga_solve(filename=None, gui=True, maxtime=0):
     population = []
 
     # Ajoute 10 individus
-    for i in range(10):
+    for i in range(5):
         population.append(Parcours(villes).shuffle())
     nbIter = 0
     for p in population:
@@ -291,14 +288,17 @@ def ga_solve(filename=None, gui=True, maxtime=0):
     while True:
         nbIter += 1
 
-        # Conditions d'arrêt sur la stagnation (100x la même solution)
+        # Conditions d'arrêt sur la stagnation. Si la solution  stagne une fois, on applique le twoOpt.
+        # Si le le twoOpt ne produit pas de meilleur résultats, on arrête.
         if population[0] == best:
             if best.distance == oldbest.distance:
                 optResult = twotOpt(best)
                 if optResult is None:
                     break
                 else:
-                    population[len(population) - 1] = optResult
+                    # population[len(population) - 1] = optResult
+                    population.insert(0, optResult)
+                    del population[-1]
                 if gui:
                     # dessin de la nouvelle meilleure solution
                     screen.fill(0)
@@ -315,16 +315,14 @@ def ga_solve(filename=None, gui=True, maxtime=0):
         mutation(population)
         selection(population)
         best = population[0]
-        # Conditions d'arrêt sur le temps
-        if time.time() - start_time > maxtime:
-            break
-        print("top10")
-        for c in population:
-            print(c.distance)
 
-    print(nbIter)
+        # Conditions d'arrêt sur le temps
+        if maxtime != 0 and time.time() - start_time > maxtime:
+            break
+
+    print('Iteration : ', nbIter)
     pygame.display.set_caption('Meilleur chemin trouvé !')
-    print(population[0].distance)
+    print('Distance : ', population[0].distance)
 
     while True:
         event = pygame.event.wait()
@@ -332,5 +330,6 @@ def ga_solve(filename=None, gui=True, maxtime=0):
             break
 
 
-ga_solve("data/pb100.txt", True, 900000)
+for _ in range(5):
+    ga_solve("data/pb050.txt", True)
 # ga_solve(maxtime=1)
