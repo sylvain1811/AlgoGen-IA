@@ -228,9 +228,9 @@ def mutation(population):
     from time import sleep
     count = 0
     for p in population:
-        if randint(0,20) == 0:
+        if randint(0, 20) == 0:
             p.villes = mutate1(p)
-        elif randint(0,20) == 0:
+        elif randint(0, 20) == 0:
             p.villes = mutate2(p)
         count += 1
 
@@ -320,16 +320,16 @@ def ga_solve(filename=None, gui=True, maxtime=0):
         if maxtime != 0 and time.time() - start_time > maxtime:
             break
 
-    print('Iteration : ', nbIter)
-    pygame.display.set_caption('Meilleur chemin trouvé !')
-    print('Distance : ', population[0].distance)
+    # print('Iteration : ', nbIter)
+    if gui:
+        pygame.display.set_caption('Meilleur chemin trouvé !')
+    # print('Distance : ', population[0].distance)
 
-    while True:
-        event = pygame.event.wait()
-        if event.type == KEYDOWN:
-            break
+    # while True:
+    #     event = pygame.event.wait()
+    #     if event.type == KEYDOWN:
+    #         break
 
-
-for _ in range(5):
-    ga_solve("data/pb050.txt", True)
+# for _ in range(5):
+#     ga_solve("data/pb050.txt", False)
 # ga_solve(maxtime=1)
