@@ -7,7 +7,6 @@ Renaud Sylvain, Castella Killian
 """
 
 import pygame
-from builtins import print
 from pygame.locals import KEYDOWN, QUIT, MOUSEBUTTONDOWN, K_RETURN
 import sys
 import math
@@ -43,6 +42,14 @@ def draw(positions):
     textRect = text.get_rect()
     screen.blit(text, textRect)
     pygame.display.flip()
+
+
+def wait_key():
+    pygame.display.set_caption('Meilleur chemin trouvé !')
+    while True:
+        event = pygame.event.wait()
+        if event.type == KEYDOWN:
+            break
 
 
 def getCitiesListFromGui():
@@ -191,46 +198,36 @@ def croisement(pop):
 
 
 def mutate1(parcours):
-    """exchange 2 contiguous elements"""
-    backup = list(parcours.villes)
-    old_dist = parcours.distance
+    """Exchange 2 contiguous elements."""
     ind = randint(0, len(parcours.villes) - 1)
     swap = parcours[ind]
     parcours[ind] = parcours[ind - 1]
     parcours[ind - 1] = swap
     parcours.fitness()
-    if parcours.distance > old_dist:
-        return backup
-    else:
-        return parcours.villes
+    return parcours.villes
 
 
 def mutate2(parcours):
     """exchange 2 random elements"""
-    backup = list(parcours.villes)
-    old_dist = parcours.distance
     ind = randint(0, len(parcours.villes) - 1)
     ind2 = ind
-    while (ind2 is ind):
+    while ind2 is ind:
         ind2 = randint(0, len(parcours.villes) - 1)
     swap = parcours[ind]
     parcours[ind] = parcours[ind2]
     parcours[ind2] = swap
     parcours.fitness()
-    if parcours.distance > old_dist:
-        return backup
-    else:
-        return parcours.villes
+    return parcours.villes
 
 
 def mutation(population):
     # test :  on effectue la mutation sur 1 élément sur deux
-    from time import sleep
     count = 0
     for p in population:
-        if randint(0, 20) == 0:
+        rand = randint(0, 20)
+        if rand == 0:
             p.villes = mutate1(p)
-        elif randint(0, 20) == 0:
+        elif rand == 1:
             p.villes = mutate2(p)
         count += 1
 
@@ -254,7 +251,7 @@ def twoOptSwap(route, i, k):
     return new_route
 
 
-def ga_solve(filename=None, gui=True, maxtime=0):
+def ga_solve(filename=None, gui=True, maxtime=0, output_dist=False):
     import time
 
     villes = []
@@ -269,67 +266,74 @@ def ga_solve(filename=None, gui=True, maxtime=0):
                 name, x, y = line.split()
                 villes.append(Ville(int(x), int(y), name))
 
-    if gui:
-        pass
-
     start_time = time.time()
 
     population = []
 
     # Ajoute 10 individus
-    for i in range(5):
+    for i in range(10):
         population.append(Parcours(villes).shuffle())
-    nbIter = 0
+
     for p in population:
         p.fitness()
     population.sort(key=lambda individu: individu.distance)
+
     best = population[0]
-    oldbest = population[1]
+    nb_iter = 0
+    nb_twoOpt = 0
+    stagnation = 0
+
     while True:
-        nbIter += 1
+        nb_iter += 1
+
+        selection(population)
+
+        mutation(population)
+
+        croisement(population)
+
+        for p in population:
+            p.fitness()
+        population.sort(key=lambda individu: individu.distance)
 
         # Conditions d'arrêt sur la stagnation. Si la solution  stagne une fois, on applique le twoOpt.
         # Si le le twoOpt ne produit pas de meilleur résultats, on arrête.
-        if population[0] == best:
-            if best.distance == oldbest.distance:
+        if best.distance == population[0].distance:
+            stagnation += 1
+            if stagnation > 5:
+                nb_twoOpt += 1
                 optResult = twotOpt(best)
+                stagnation = 0
                 if optResult is None:
-                    break
+                    # if gui:
+                    #     wait_key()
+                    if output_dist:
+                        print(population[0].distance)
+                    return population[0].distance, [v.name for v in population[0].villes]
                 else:
-                    # population[len(population) - 1] = optResult
                     population.insert(0, optResult)
                     del population[-1]
                 if gui:
                     # dessin de la nouvelle meilleure solution
-                    screen.fill(0)
-                    pygame.draw.lines(screen, line_color, True, population[0].getPoints())
-                    pygame.display.set_caption('Meilleur chemin trouvé actuellement...')
-                    pygame.display.flip()
-        oldbest = best
-
-        croisement(population)
-        for individu in population:
-            individu.fitness()
-        population.sort(key=lambda individu: individu.distance)
-
-        mutation(population)
-        selection(population)
-        best = population[0]
+                    draw_path(population)
+        else:
+            best = population[0]
 
         # Conditions d'arrêt sur le temps
         if maxtime != 0 and time.time() - start_time > maxtime:
-            break
+            # if gui:
+            #     wait_key()
+            if output_dist:
+                print(population[0].distance)
+            return population[0].distance, [v.name for v in population[0].villes]
 
-    # print('Iteration : ', nbIter)
-    if gui:
-        pygame.display.set_caption('Meilleur chemin trouvé !')
-    # print('Distance : ', population[0].distance)
 
-    # while True:
-    #     event = pygame.event.wait()
-    #     if event.type == KEYDOWN:
-    #         break
+def draw_path(population):
+    screen.fill(0)
+    pygame.draw.lines(screen, line_color, True, population[0].getPoints())
+    pygame.display.set_caption('Meilleur chemin trouvé actuellement...')
+    pygame.display.flip()
 
-# for _ in range(5):
-#     ga_solve("data/pb050.txt", False)
-# ga_solve(maxtime=1)
+#
+# for _ in range(1):
+#     ga_solve("data/pb050.txt", True, 90000, True)

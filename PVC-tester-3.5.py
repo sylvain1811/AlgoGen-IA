@@ -52,7 +52,7 @@ outfile = sys.stdout
 verbose = False
 
 # est-ce qu'on veut un affichage graphique?
-gui = False
+gui = True
 
 # PROGRAMME
 # =========
