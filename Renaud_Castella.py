@@ -13,7 +13,8 @@ import math
 from random import shuffle, randint
 
 
-def initPygame():
+def init_pygame():
+    """Initialise pygame pour l'utilisation de la gui."""
     global city_color
     global line_color
     global city_radius
@@ -34,6 +35,7 @@ def initPygame():
 
 
 def draw(positions):
+    """Dessine le parcours"""
     city_radius = 3
     screen.fill(0)
     for pos in positions:
@@ -45,6 +47,7 @@ def draw(positions):
 
 
 def wait_key():
+    """Attente d'une entrée utilisateur avent de fermer la fenêtre."""
     pygame.display.set_caption('Meilleur chemin trouvé !')
     while True:
         event = pygame.event.wait()
@@ -52,7 +55,8 @@ def wait_key():
             break
 
 
-def getCitiesListFromGui():
+def get_cities_list_from_gui():
+    """Construit une liste de villes d'après les points ajoutés par l'utilisateur"""
     cities = []
     collecting = True
     count = 1
@@ -70,7 +74,9 @@ def getCitiesListFromGui():
     return cities
 
 
-class Ville():
+class Ville:
+    """Contient un nom et des coordonnées."""
+
     def __init__(self, x, y, name=""):
         self.x = x
         self.y = y
@@ -83,15 +89,24 @@ class Ville():
         return self.__str__()
 
 
-class Parcours():
+class Parcours:
+    """Contient une liste de ville et une distance de parcours (calculable)."""
+
     distance = None
     villes = []
+    dict_dist = None
 
     def __init__(self, villes):
         if isinstance(villes, list):
             self.villes = list(villes)
 
+            # Création d'une table de distances entre les villes.
+            # Evite de calculer plusieurs fois la même distance.
+            if Parcours.dict_dist is None:
+                Parcours.dict_dist = {v.name: {u.name: None for u in villes} for v in villes}
+
     def shuffle(self):
+        """Mélange les villes."""
         shuffle(self.villes)
         return self
 
@@ -107,45 +122,59 @@ class Parcours():
     def __delitem__(self, key):
         del self.villes[key]
 
-    def getPoints(self):
-        list = []
-        for v in self.villes:
-            list.append((v.x, v.y))
-        return list
+    def get_points(self):
+        """Retourne uniquement les coordonnées des villes."""
+        return [(v.x, v.y) for v in self.villes]
 
     def fitness(self):
+        """Calcul de la distance totale du parcours."""
         self.distance = 0
         old_city = None
         for v in self.villes:
-            self.distance += Parcours.dist(old_city, v)
+            # On regarde d'abord si la distance entre ces deux villes a déjà été calculée.
+            # Calcul sinon.
+            if old_city is not None:
+                if Parcours.dict_dist[old_city.name][v.name] is None:
+                    Parcours.dist(old_city, v)
+                self.distance += Parcours.dict_dist[old_city.name][v.name]
             old_city = v
         self.distance += Parcours.dist(old_city, self.villes[0])
 
     @staticmethod
     def dist(a, b):
-        if a is not None:
-            return math.sqrt(math.pow(a.x - b.x, 2) + math.pow(a.y - b.y, 2))
-        return 0
+        """Calcul de la distance entre deux villes. Sauvegarde du résultat dans le dictionnaire."""
+        tx = a.x - b.x
+        ty = a.y - b.y
+        res = math.sqrt(tx * tx + ty * ty)
+        # Enregistrement du résultat dans le dictionnaire. Deux entrées car dist(a,b) = dist(b,a).
+        Parcours.dict_dist[a.name][b.name] = res
+        Parcours.dict_dist[b.name][a.name] = res
+        return res
 
-    def append(self, ville):
-        self.villes.append(ville)
 
-    def __str__(self):
-        str = "{"
-        for v in self.villes:
-            str += repr(v) + ", "
-        return str + "}"
+def append(self, ville):
+    """Ajoute une ville au parcours."""
+    self.villes.append(ville)
 
-    def __repr__(self):
-        return self.__str__()
+
+def __str__(self):
+    str = "{"
+    for v in self.villes:
+        str += repr(v) + ", "
+    return str + "}"
+
+
+def __repr__(self):
+    return self.__str__()
 
 
 def selection(population):
+    """Séléction des meilleurs individus."""
     for individu in population:
         individu.fitness()
     population.sort(key=lambda individu: individu.distance)
 
-    # delete n last elem of list
+    # delete n last elem of list, n = len / 2
     del population[-int(len(population) / 2):]
 
 
@@ -166,17 +195,17 @@ def crossover(ga, gb):
     while True:
         x = (x - 1) % n
         y = (y + 1) % n
-        if fa == True:
+        if fa:
             if ga[x] not in g:
                 g.insert(0, ga[x])
             else:
                 fa = False
-        if fb == True:
+        if fb:
             if gb[y] not in g:
                 g.append(gb[y])
             else:
                 fb = False
-        if fa == False or fb == False:
+        if not fa or not fb:
             break
 
     if len(g) < len(ga):
@@ -187,6 +216,7 @@ def crossover(ga, gb):
 
 
 def croisement(pop):
+    """Croisement des parents jusqu'à doubler la taille de la population."""
     n = len(pop)
     while len(pop) < 2 * n:
         x = pop[randint(0, len(pop) - 1)]
@@ -208,20 +238,20 @@ def mutate1(parcours):
 
 
 def mutate2(parcours):
-    """exchange 2 random elements"""
-    ind = randint(0, len(parcours.villes) - 1)
-    ind2 = ind
-    while ind2 is ind:
-        ind2 = randint(0, len(parcours.villes) - 1)
-    swap = parcours[ind]
-    parcours[ind] = parcours[ind2]
-    parcours[ind2] = swap
+    """Exchange 2 random elements."""
+    i = randint(0, len(parcours.villes) - 1)
+    j = i
+    while j is i:
+        j = randint(0, len(parcours.villes) - 1)
+    swap = parcours[i]
+    parcours[i] = parcours[j]
+    parcours[j] = swap
     parcours.fitness()
     return parcours.villes
 
 
 def mutation(population):
-    # test :  on effectue la mutation sur 1 élément sur deux
+    """2 chance sur 20 de muter."""
     count = 0
     for p in population:
         rand = randint(0, 20)
@@ -232,18 +262,20 @@ def mutation(population):
         count += 1
 
 
-def twotOpt(parcours):
+def two_opt(parcours):
+    """Algorithme 2-opt pour l'optimisation."""
     parcours.fitness()
     for i in range(1, len(parcours.villes) - 1):
         for k in range(i + 1, len(parcours.villes)):
-            new_parcours = Parcours(twoOptSwap(parcours.villes, i, k))
+            new_parcours = Parcours(two_opt_swap(parcours.villes, i, k))
             new_parcours.fitness()
             if new_parcours.distance < parcours.distance:
                 return new_parcours
     return None
 
 
-def twoOptSwap(route, i, k):
+def two_opt_swap(route, i, k):
+    """Méthode swap de l'algorithme 2-opt."""
     new_route = []
     new_route.extend(route[:i])
     new_route.extend(reversed(route[i:k + 1]))
@@ -252,15 +284,19 @@ def twoOptSwap(route, i, k):
 
 
 def ga_solve(filename=None, gui=True, maxtime=0, output_dist=False):
+    """Donne une solution au problème en utilisant une algo génétique."""
     import time
 
+    # Suppression du dictionnaire des villes si déjà existant.
+    Parcours.dict_dist = None
+
     villes = []
-    if gui:
-        initPygame()
+    if gui or filename is None:
+        init_pygame()
     if filename is None:
-        villes = getCitiesListFromGui()
+        villes = get_cities_list_from_gui()
     else:
-        # lire le fichier
+        # Lire le fichier
         with open(filename) as file:
             for line in file:
                 name, x, y = line.split()
@@ -280,7 +316,7 @@ def ga_solve(filename=None, gui=True, maxtime=0, output_dist=False):
 
     best = population[0]
     nb_iter = 0
-    nb_twoOpt = 0
+    nb_two_opt = 0
     stagnation = 0
 
     while True:
@@ -296,22 +332,22 @@ def ga_solve(filename=None, gui=True, maxtime=0, output_dist=False):
             p.fitness()
         population.sort(key=lambda individu: individu.distance)
 
-        # Conditions d'arrêt sur la stagnation. Si la solution  stagne une fois, on applique le twoOpt.
-        # Si le le twoOpt ne produit pas de meilleur résultats, on arrête.
+        # Conditions d'arrêt sur la stagnation. Si la solution  stagne une fois, on applique le two_opt.
+        # Si le le two_opt ne produit pas de meilleur résultats, on arrête.
         if best.distance == population[0].distance:
             stagnation += 1
-            if stagnation > 5:
-                nb_twoOpt += 1
-                optResult = twotOpt(best)
+            if stagnation > 25:
+                nb_two_opt += 1
+                opt_result = two_opt(best)
                 stagnation = 0
-                if optResult is None:
+                if opt_result is None:
                     # if gui:
                     #     wait_key()
                     if output_dist:
                         print(population[0].distance)
                     return population[0].distance, [v.name for v in population[0].villes]
                 else:
-                    population.insert(0, optResult)
+                    population.insert(0, opt_result)
                     del population[-1]
                 if gui:
                     # dessin de la nouvelle meilleure solution
@@ -330,10 +366,12 @@ def ga_solve(filename=None, gui=True, maxtime=0, output_dist=False):
 
 def draw_path(population):
     screen.fill(0)
-    pygame.draw.lines(screen, line_color, True, population[0].getPoints())
+    pygame.draw.lines(screen, line_color, True, population[0].get_points())
     pygame.display.set_caption('Meilleur chemin trouvé actuellement...')
     pygame.display.flip()
 
-#
-# for _ in range(1):
-#     ga_solve("data/pb050.txt", True, 90000, True)
+
+# Tests individuels.
+if __name__ == "__main__":
+    for _ in range(1):
+        ga_solve("data/pb100.txt", False, 90000, True)

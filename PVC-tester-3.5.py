@@ -49,10 +49,10 @@ outfile = sys.stdout
 # outfile = open('results.csv', 'w')
 
 # affichage à la console d'informations d'avancement?
-verbose = False
+verbose = True
 
 # est-ce qu'on veut un affichage graphique?
-gui = True
+gui = False
 
 # PROGRAMME
 # =========
