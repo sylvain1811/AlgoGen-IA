@@ -43,17 +43,16 @@ Crossover avec l'algorithme : _Greedy Subtour Crossover_ détaillé dans le PDF 
 dans le cas ou les mutations et les croisements ne trouvent pas de meilleures solutions après plusieurs itérations nous utilisons l'algorithme 2opt également détaillé dans le PDF `arob98.pdf`.
 cet algorithme va s'occuper de localiser les chemins qui se croisent et ca réarranger les villes pour décroiser un maximum.
 
-## WP4 : Validation
+## WP4 : Tests et validation
 
-### Test
+### Tests
 
 Pour tester le bon fonctionnement de notre algorithme nous nous sommes principalement basé sur le chemin que nous affichons à l'utilisateur. 
-En voyant le parcour il est très simple de savoir si nous nous approchons du solution cohérante ou non.
-Nous nous sommes également basé sur la distance totale du parcours en fonction du nombre d'itérations pour nous assurer que notre algorithme était éfficace.
+En voyant le parcours il est très simple de savoir si nous nous approchons du solution cohérante ou non.
+Nous nous sommes également basé sur la distance totale du parcours en fonction du nombre d'itérations pour nous assurer que notre algorithme était efficace.
 
 ### Validation
 
-Lorsque nous sommes arrivé a ce que nous pensions être la fin du projet nous avons réalisé que notre solution arrivait trop souvent sur des minimums locaux.
-Cela était du au fait que nous avions une approche trop élitiste et que nous ne laissions que très peu de chance aux mauvaises solutions qui aurait pu amener une meilleure solution finale
-nous avons donc adapté notre algorithme pour laisser plus de place à l'aléatoire
+Lorsque nous sommes arrivé à ce que nous pensions être la fin du projet nous avons réalisé que notre solution arrivait trop souvent sur des minimums locaux.
+Cela était du au fait que nous avions une approche trop élitiste et que nous ne laissions que très peu de chance aux mauvaises solutions qui aurait pu amener une meilleure solution finale. Nous avons donc adapté notre algorithme pour laisser plus de place à l'aléatoire.
 
