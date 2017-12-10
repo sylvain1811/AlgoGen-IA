@@ -4,8 +4,8 @@ TP Projet algorithmes génétiques du cours d'IA @HE-Arc
 
 ## WP1 : Aquisition de données
 
-- GUI : done.
-- File : done.
+- GUI
+- Fichier
 
 ## WP2 : Algo génétique: Généralités
 
@@ -16,8 +16,8 @@ On enregistre le résultat du calcul de la distance entre deux villes (a et b) d
 
 ### Conditions d'arrêts
 
-- Temps : si current_time - start_time > maxtime
-- Stagnation : si la distance (fitness) du meilleur parcours ne s'améliore pas après 25 itérations, on applique l'algorithme _2-opt_. Si le résultat est bon (un meilleur parcours a été trouvé, on continue, sinon on arrête.
+- Temps : si `current_time - start_time > maxtime`
+- Stagnation : si la distance totale (fitness) du meilleur parcours ne s'améliore pas après 25 itérations, on applique l'algorithme _2-opt_. Si le résultat est bon (un meilleur parcours a été trouvé, on continue, sinon on arrête.
 
 ### Séléction
 
